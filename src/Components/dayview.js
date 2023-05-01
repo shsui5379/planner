@@ -4,6 +4,7 @@ import { monthNameToNumber } from "../Assets/js/utilities/utils";
 import '../Assets/Styles/dayview.css';
 import EventDetails from "./EventDetails";
 import TaskDetails from "./TaskDetails";
+import TaskList from "./TaskList";
 
 const DayView = (props) => {
     let hours = [];
@@ -19,16 +20,16 @@ const DayView = (props) => {
                 const items = await plannerDriver.initializePlanner(props.year, monthNameToNumber(props.month), props.day);
 
                 for (let item of items) {
-                    if (typeof item === WorkTimeBlock) {
+                    if (item.constructor.name == "WorkTimeBlock") {
                         elements.push(<li><button onClick={() => {
                             props.root.render(<div>
-                                <TaskDetails root={props.root} event={item} />
+                                <TaskDetails root={props.root} event={item} backYear={props.year} backMonth={props.month} backDay={props.day} />
                             </div>);
                         }}>{item.title}</button></li >);
                     } else {
                         elements.push(<li><button onClick={() => {
                             props.root.render(<div>
-                                <EventDetails root={props.root} event={item} />
+                                <EventDetails root={props.root} event={item} backYear={props.year} backMonth={props.month} backDay={props.day} />
                             </div>);
                         }}>{item.title}</button></li>);
                     }
@@ -48,16 +49,29 @@ const DayView = (props) => {
     }
     hours.push(<div>Midnight</div>);
     return <div id="dayview">
-        <div id="left">Back</div>
+        <button id="left" onClick={() => {
+            props.root.render(<div>
+                <DayView root={props.root} year={props.year} month={props.month} day={props.day - 1} />
+            </div>)
+        }}>Back</button>
         <div id="middle">
             <div id="time">{hours}</div>
             <ul id="list">
+                {props.month} {props.day}, {props.year}
                 {itemElements}
             </ul>
 
         </div>
-        <div id="right">Forward</div>
-
+        <button id="right" onClick={() => {
+            props.root.render(<div>
+                <DayView root={props.root} year={props.year} month={props.month} day={props.day + 1} />
+            </div>)
+        }}>Forward</button>
+        <button id="add-block-button" onClick={() => {
+            props.root.render(<div>
+                <TaskList root={props.root} backYear={props.year} backMonth={props.month} backDay={props.day}></TaskList>
+            </div>);
+        }}>➕</button>
     </div>
 
 };
